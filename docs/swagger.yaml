@@ -1,0 +1,134 @@
+definitions:
+  models.CreatePaymentRequest:
+    properties:
+      amount:
+        type: number
+      currency:
+        enum:
+        - ETB
+        - USD
+        type: string
+      reference:
+        maxLength: 255
+        type: string
+    required:
+    - amount
+    - currency
+    - reference
+    type: object
+  models.CreatePaymentResponse:
+    properties:
+      id:
+        type: string
+      status:
+        $ref: '#/definitions/models.PaymentStatus'
+    type: object
+  models.ErrorResponse:
+    properties:
+      code:
+        type: integer
+      details:
+        additionalProperties:
+          type: string
+        type: object
+      error:
+        type: string
+    type: object
+  models.GetPaymentResponse:
+    properties:
+      amount:
+        type: number
+      created_at:
+        type: string
+      currency:
+        type: string
+      id:
+        type: string
+      reference:
+        type: string
+      status:
+        $ref: '#/definitions/models.PaymentStatus'
+    type: object
+  models.PaymentStatus:
+    enum:
+    - PENDING
+    - SUCCESS
+    - FAILED
+    type: string
+    x-enum-varnames:
+    - StatusPending
+    - StatusSuccess
+    - StatusFailed
+info:
+  contact: {}
+paths:
+  /api/v1/payments:
+    post:
+      consumes:
+      - application/json
+      description: Create a payment with amount, currency, and unique reference. The
+        payment will be processed asynchronously.
+      parameters:
+      - description: Payment creation request
+        in: body
+        name: payment
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreatePaymentRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Payment created successfully
+          schema:
+            $ref: '#/definitions/models.CreatePaymentResponse'
+        "400":
+          description: Invalid request body or validation failed
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "409":
+          description: Payment with this reference already exists
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Create a new payment
+      tags:
+      - payments
+  /api/v1/payments/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve payment details by payment ID
+      parameters:
+      - description: Payment ID
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Payment details
+          schema:
+            $ref: '#/definitions/models.GetPaymentResponse'
+        "400":
+          description: Invalid payment ID format
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Payment not found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Get payment by ID
+      tags:
+      - payments
+swagger: "2.0"
