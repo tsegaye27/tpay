@@ -34,7 +34,37 @@ Worker -> PostgreSQL (Process Payment with Idempotency)
 ### Prerequisites
 
 - Docker and Docker Compose
-- Go 1.21+ (for local development)
+- Go 1.24+ (for local development)
+
+### Environment Configuration
+
+The application uses environment variables for configuration. Create a `.env` file in the project root:
+
+```bash
+# Database Configuration
+DB_HOST=postgres
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=postgres
+DB_NAME=payment_gateway
+DB_SSLMODE=disable
+
+# RabbitMQ Configuration
+RABBITMQ_HOST=rabbitmq
+RABBITMQ_PORT=5672
+RABBITMQ_USER=guest
+RABBITMQ_PASSWORD=guest
+RABBITMQ_VHOST=/
+
+# API Server Configuration
+API_PORT=8080
+
+# Development/Production Environment
+ENV=development
+LOG_LEVEL=info
+```
+
+**Note**: Docker Compose automatically loads environment variables from the `.env` file in the project root.
 
 ### Run with Docker Compose
 
