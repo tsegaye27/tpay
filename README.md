@@ -78,11 +78,17 @@ LOG_LEVEL=info
    - RabbitMQ (ports 5672, 15672 for management UI)
    - API server (port 8080)
    - Worker service
+   - Adminer database manager (port 8081)
 
 2. **Check service health**:
    ```bash
    curl http://localhost:8080/health
    ```
+
+3. **Access management interfaces**:
+   - **API Documentation**: http://localhost:8080/swagger/index.html
+   - **Database Manager**: http://localhost:8081
+   - **Message Queue Monitor**: http://localhost:15672
 
 ## API Usage
 
@@ -148,6 +154,16 @@ curl -X POST http://localhost:8080/api/v1/payments \
 docker compose up --scale worker=3
 ```
 
+### Visual Monitoring
+
+For easier testing and debugging, use the web interfaces:
+
+1. **API Testing**: http://localhost:8080/swagger/index.html
+2. **Database Viewer**: http://localhost:8081 (Adminer)
+3. **Queue Monitor**: http://localhost:15672 (RabbitMQ Management)
+
+Watch messages flow from API → RabbitMQ → Worker → Database in real-time!
+
 ## Development
 
 ### Local Development Setup
@@ -200,13 +216,41 @@ CREATE TABLE payments (
 );
 ```
 
-## Monitoring
+## Monitoring & Database Access
 
-### RabbitMQ Management UI
+### Web Interfaces
 
+#### Adminer (Database Management)
+Access the Adminer database management interface at: http://localhost:8081
+
+**Features:**
+- Web-based database browser and editor
+- Execute SQL queries directly
+- View table structures and relationships
+- Export data in various formats
+
+**Login Credentials:**
+- **System**: PostgreSQL
+- **Server**: postgres (Docker service name)
+- **Username**: postgres
+- **Password**: postgres
+- **Database**: payment_gateway
+
+**Quick Start:**
+1. Open http://localhost:8081
+2. Select "PostgreSQL" from system dropdown
+3. Enter server: `postgres`, username: `postgres`, password: `postgres`
+4. Click "Login"
+
+#### RabbitMQ Management UI
 Access the RabbitMQ management interface at: http://localhost:15672
 - **Username**: guest
 - **Password**: guest
+
+**Key Monitoring Areas:**
+- **Queues**: Monitor `payment_processing` queue
+- **Connections**: See active API and worker connections
+- **Overview**: Message rates and system health
 
 ### Logs
 
@@ -219,6 +263,8 @@ View specific service logs:
 ```bash
 docker compose logs -f api
 docker compose logs -f worker
+docker compose logs -f postgres
+docker compose logs -f rabbitmq
 ```
 
 ## Production Considerations
